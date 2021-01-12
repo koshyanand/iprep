@@ -1,2 +1,2 @@
-# S30-Java
-Revision of S30 Questions
+# IPrep
+Data Structures and Algorithms Interview Questions from S30, Grokking & CTCI
