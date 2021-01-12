@@ -1,6 +1,6 @@
 // Link : https://leetcode.com/problems/search-in-a-sorted-array-of-unknown-size/
 
-// Time Complexity : O(log(N))
+// Time Complexity : O(log(T)) Index of the search element
 // Space Complexity : O(1)
 
 /**
