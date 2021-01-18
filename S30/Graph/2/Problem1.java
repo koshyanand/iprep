@@ -1,92 +1,65 @@
 // Link: https://leetcode.com/problems/critical-connections-in-a-network/
 
-// Brute Force Approach
-// Time Complexity : E(V + E)
+// Time Complexity : V + E
 // Space Complexity : V + E
 
-
 class Solution {
+    List<List<Integer>> result;
+    List<List<Integer>> map;
+    int[] nodeInfo;
+    boolean[] visited;
     
-    public HashMap<Integer, HashSet<Integer>> getMap(List<List<Integer>> connections) {
-        HashMap<Integer, HashSet<Integer>> map = new HashMap<>();
+    public List<List<Integer>> getMap(List<List<Integer>> connections, int n) {
+        List<List<Integer>> map = new ArrayList<>();
         
+        for (int i = 0; i < n; i++) {
+            map.add(new ArrayList<>());
+        }
         for (int j = 0; j < connections.size(); j++) {
             List<Integer> edge = connections.get(j);
-            addConnection(map, edge);
+            
+            map.get(edge.get(0)).add(edge.get(1));
+            map.get(edge.get(1)).add(edge.get(0));
         }
         
         return map;
     }
     
-    public void removeConnection(HashMap<Integer, HashSet<Integer>> map, List<Integer> edge) {
+    public void dfs(int i, int prev, int id) {
         
-        if (map.containsKey(edge.get(0))) {
-            if (map.get(edge.get(0)).size() < 2)
-                map.remove(edge.get(0));
-            else
-                map.get(edge.get(0)).remove(edge.get(1));
-        }
-        if (map.containsKey(edge.get(1))) {
-            if (map.get(edge.get(1)).size() < 2)
-                map.remove(edge.get(1));
-            else
-                map.get(edge.get(1)).remove(edge.get(0));
-        }
-    }
-    
-    public void addConnection(HashMap<Integer, HashSet<Integer>> map, List<Integer> edge) {
+        visited[i] = true;
+        id++;
+        nodeInfo[i] = id;
         
-        if (!map.containsKey(edge.get(0))) {
-            map.put(edge.get(0), new HashSet<Integer>());
-        }
-        map.get(edge.get(0)).add(edge.get(1));
+        for (int adjNode : map.get(i)) {
             
-        if (!map.containsKey(edge.get(1))) {
-            map.put(edge.get(1), new HashSet<Integer>());
+            if (adjNode == prev)
+                continue;
+            if (!visited[adjNode]) 
+                dfs(adjNode, i, id);
+                            
+            if (nodeInfo[adjNode] <= nodeInfo[i])
+                nodeInfo[i] = nodeInfo[adjNode];
+            if (nodeInfo[adjNode] > id)
+                result.add(new ArrayList<>(Arrays.asList(i, adjNode)));
+            
         }
-        map.get(edge.get(1)).add(edge.get(0));
     }
     
-    public int getVisitedNodes(HashMap<Integer, HashSet<Integer>> map) {
-        
-        Set<Integer> visited = new HashSet<>();
-        LinkedList<Integer> queue = new LinkedList<>();
-        queue.add(0);
-        
-        while(queue.size() > 0) {
-            int node = queue.poll();
-            visited.add(node);
-            if (map.containsKey(node) && map.get(node).size() > 0) {
-                for (int adjNode : map.get(node)) {
-                    if (!visited.contains(adjNode)) {
-                        queue.add(adjNode);
-                    }
-                }
-            }
-        }
-        
-        return visited.size();
-        
-    }
     
     public List<List<Integer>> criticalConnections(int n, List<List<Integer>> connections) {
         
-        List<List<Integer>> result = new ArrayList<List<Integer>>();
+        result = new ArrayList<List<Integer>>();
         if (n == 0)
             return result;
         if (n == 2)
             return connections;
-        HashMap<Integer, HashSet<Integer>> map = getMap(connections);
         
-        for (int i = 0; i < connections.size(); i++) {
-            removeConnection(map, connections.get(i));
-            int nodesVisited = getVisitedNodes(map);
-            if (nodesVisited != n) {
-                result.add(connections.get(i));
-            }
-            addConnection(map, connections.get(i));
-            
-        }
+        map = getMap(connections, n);
+        nodeInfo = new int[n];
+        visited = new boolean[n];
+        dfs(0, -1, 0);
+        
         return result;
         
     }
